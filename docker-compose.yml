@@ -1,0 +1,115 @@
+x-semona-depends-on: &semona-depends-on
+  - db
+  - redis
+  - artemis
+  - emqx
+
+version: '3.1'
+
+services:
+  emqx:
+    restart: always
+    image: emqx:4.3
+    container_name: emqx
+    environment:
+      EMQX_MQTT__MAX_PACKET_SIZE: "2MB"
+      EMQX_ALLOW__ANONYMOUS: "true"
+    ports:
+      - ${MQTT_PORT}:1883
+      - ${MQTT_MNG}:18083
+
+  redis:
+    image: redis:6
+    container_name: dbmemory
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    restart: unless-stopped 
+    volumes:
+      - redis:/data
+      - ./docker/redis:/usr/local/etc/redis
+  db:
+    image: postgis/postgis:14-3.4
+    restart: unless-stopped
+    container_name: semona_db
+    environment:
+      POSTGRES_DB: semdb
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_home:/var/lib/postgresql/data
+      - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d  
+  artemis:
+    image: insparkplatform/apache-artemis
+    restart: unless-stopped
+    container_name: jmsserver
+    volumes:
+      - ./docker/artemis-etc:/var/lib/artemis-instance/etc-override
+
+  semona-init:
+    image: insparkplatform/semona-migrator
+    container_name: migrator
+    env_file: ./docker/.env
+    depends_on: *semona-depends-on    
+  
+  semona-engine:
+    image: insparkplatform/semona-engine
+    container_name: engine
+    env_file: ./docker/.env
+    ports:
+      - 9810:8746
+    depends_on: 
+      semona-init:
+        condition: service_completed_successfully
+  
+  semona-periodic:
+    image: insparkplatform/semona-periodic
+    container_name: periodic
+    env_file: ./docker/.env
+    ports:
+      - 9811:8080
+    depends_on: 
+      semona-init:
+        condition: service_completed_successfully
+
+  semona-webservices:
+    image: insparkplatform/semona-webservices
+    container_name: webservices
+    env_file: ./docker/.env
+    ports:
+      - 9812:8080
+    depends_on: 
+      semona-init:
+        condition: service_completed_successfully
+    volumes:
+    - inspark-files:/files
+
+  semux:
+    restart: always
+    image: insparkplatform/semux
+    container_name: semux 
+
+  proxy:
+    restart: always
+    image: insparkplatform/semona-proxy
+    container_name: proxy
+    env_file: ./docker/.env
+    ports:
+      - ${HTTP_PORT}:80
+    volumes:
+      - ./docker/proxy-semona:/etc/nginx/conf.d     
+  
+  handler:
+    restart: always
+    image: insparkplatform/semona-handler
+    container_name: handler
+    env_file: ./docker/.env
+    depends_on: 
+      semona-init:
+        condition: service_completed_successfully
+
+volumes:
+  semona_home:
+    external: false
+  db_home:
+    external: false
+  redis:
+    external: false
+  inspark-files:    
