@@ -70,6 +70,8 @@ services:
     depends_on: 
       semona-init:
         condition: service_completed_successfully
+    volumes:
+    - ./docker/inspark-license.lic:/opt/jboss/wildfly/standalone/configuration/inspark-license.lic
 
   semona-webservices:
     image: insparkplatform/semona-webservices
