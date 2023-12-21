@@ -9,8 +9,9 @@ The project is launching the platform exclusively for test purposes for brief ac
 ## Clone project from GitHub repository
 
 Clone Inspark Platform's repo in your terminal with the following command:
-
+```
 git clone https://github.com/inspark/inspark-docker.git
+```
 
 Once that command completes successfully, you should see a new inspark-docker folder in your current directory.
 
@@ -25,7 +26,10 @@ copy the license to the folder ./docker/inspark-license.lic
 
 When working on master branch, run the following commands to run development mode using docker compose:
 
+```
 docker compose up
+```
+
 
 TIP
 The platform will launch with options wich specified within files like .env and ./docker/.env.
