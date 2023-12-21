@@ -17,9 +17,11 @@ Once that command completes successfully, you should see a new inspark-docker fo
 ## Launch Platform through docker compose
 
 Navigate to the folder you created in step 1:
-
+```
 cd inspark-docker
-copy the license to the folder ./docker/inspark-license.lic:/opt/jboss/wildfly/standalone/configuration/inspark-license.lic
+
+```
+copy the license to the folder ./docker/inspark-license.lic
 
 When working on master branch, run the following commands to run development mode using docker compose:
 
