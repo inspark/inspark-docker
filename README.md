@@ -38,7 +38,7 @@ If you need to change port options which need to get access via http, you can ch
 
 ## Configuring docker compose
 
-You can configure the Docker Compose environment variables for  with docker/.env  respectively. These environment files set the environment for most containers in the Docker Compose setup, and some variables affect multiple containers and others only single ones.
+You can configure the Docker Compose environment variables for docker/.env  respectively. These environment files sets the environment for most containers in the Docker Compose setup, and some variables affect multiple containers and others only single ones.
 
 NOTE
 If you feel like that, you can choose to use your own data bases like PostgreSQL, Redis, etc. For that you need meet system requirements which you can see at docs.inspark.ru/ru/system/install/standalone
