@@ -56,7 +56,7 @@ password: masterkey
 ---
 
 ## Emulation of controller performance
-A controller emulator is needed if you want to test and visually see the operation of the system by testing its functionality, without equipment.
+A controller emulator is needed if you want to test and visually see the capability of the controller, without equipment itself.
 In the **Inspark-docker** directory there is the emulator script, called **controller-emulator.sh**
 
 This script can be launched using the following command:
@@ -64,7 +64,7 @@ This script can be launched using the following command:
 
 - Where `bash ./controller-emulator.sh` is command itself.
 - `<Serial number>` - Serial number of the controller. Get it by youself, in the future you will need it in order to create a controller in your **Inspark Platform instance(IPI)**.
-- `<Host ip>` - ip address of the host where the Inspark Platform instance is located, to which we will add the controller.
+- `<Host ip>` - ip address of the host where the **Inspark Platform instance** is located, to which we will add the controller.
 
 
 
