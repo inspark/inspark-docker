@@ -66,6 +66,8 @@ This script can be launched using the following command:
 - `<Serial number>` - Serial number of the controller. Get it by youself, in the future you will need it in order to create a controller in your **Inspark Platform instance(IPI)**.
 - `<Host ip>` - ip address of the host where the **Inspark Platform instance** is located, to which we will add the controller.
 
+At this point **controller emulator** is fully setup and ready to be use in **IPI**!
+
 
 
 
