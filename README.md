@@ -60,13 +60,24 @@ In the **Inspark-docker** directory there is the emulator script, called **contr
 
 This script can be launched using the following command:
 ```
-bash ./controller-emulator.sh <Serial number> <Host ip>
+bash ./controller-emulator.sh ATAT2020 <Host ip>
 ```
 - Where `bash ./controller-emulator.sh` is command itself.
-- `<Serial number>` - Serial number of the controller. Get it by youself, in the future you will need it in order to create a controller in your **Inspark Platform instance(IPI)**.
+
+- `ATAT2020` - serial number of the controller we use in our test configuration
+
 - `<Host ip>` - ip address of the host where the **Inspark Platform instance** is located, to which we will add the controller.
 
 At this point **controller emulator** is fully setup and ready to be use in **IPI**!
+
+## Configuration file import
+Now is the time to import our **configuration file** wich contains pre-config **Objects**, **Categories** and **Devices**, for this specific test case. However in a future production cases you can also make configuration for you instance, in sake of backup for example.
+
+The process of import is simple and quick, all you need to do is search up word "Import" in searchbar from up-left corner menu.
+In the open window click `Import` button, then click `+ Select data files`, from this window you must find and choose your downloaded config file, and then select `Upload data`, that's it.
+
+Now then you imported a config, test elements will apear in your instacnce, and you can see them on "Objects" or "Devices" sections for example.
+
 
 
 
