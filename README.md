@@ -77,7 +77,7 @@ The process of import is simple and quick:
 1. Search up word "Import" in searchbar from up-left corner menu
 2. In the open window click `Import` button
 3. Then click `+ Select data files`
-4. From open window find and choose your downloaded config file, and then select `Upload data`, that's it.
+4. From open window find and choose your downloaded config file (*Inspark-docker/configuration.zip*), and then select `Upload data`, that's it.
 
 Now then you imported a config, test elements will apear in your instacnce, and you can see them on "Objects" or "Devices" sections for example.
 
