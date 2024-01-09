@@ -44,7 +44,7 @@ If you feel like that, you can choose to use your own data bases like PostgreSQL
 
 
 ## Log in to Inspark
-You can access Inspark now via your web browser by visiting http://localhost:HTT_PORT. Note that many browsers now default to https - if yours is one of them, please make sure it uses http.
+You can access Inspark now via your web browser by visiting http://localhost:HTT_PORT. (HTTP_PORT 8001 by default) Note that many browsers now default to https - if yours is one of them, please make sure it uses http.
 
 Log in with the default username and password:
 
@@ -66,7 +66,7 @@ bash ./controller-emulator.sh ATAT2020 <Host ip>
 
 - `ATAT2020` - serial number of the controller we use in our test configuration
 
-- `<Host ip>` - ip address of the host where the **Inspark Platform instance** is located, to which we will add the controller.
+- `<Host ip>` - ip address of the host where the **Inspark Platform instance(IPI)** is located, to which we will add the controller.
 
 At this point **controller emulator** is fully setup and ready to be use in **IPI**!
 
@@ -77,7 +77,7 @@ The process of import is simple and quick:
 1. Search up word "Import" in searchbar from up-left corner menu
 2. In the open window click `Import` button
 3. Then click `+ Select data files`
-4. From open window find and choose your downloaded config file (*Inspark-docker/configuration.zip*), and then select `Upload data`, that's it.
+4. From open window find and choose your downloaded config file (*./Inspark-docker/configuration.zip*), and then select `Upload data`, that's it.
 
 Now then you imported a config, test elements will apear in your instacnce, and you can see them on "Objects" or "Devices" sections for example.
 
