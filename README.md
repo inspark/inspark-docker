@@ -73,8 +73,11 @@ At this point **controller emulator** is fully setup and ready to be use in **IP
 ## Configuration file import
 Now is the time to import our **configuration file** wich contains pre-config **Objects**, **Categories** and **Devices**, for this specific test case. However in a future production cases you can also make configuration for you instance, in sake of backup for example.
 
-The process of import is simple and quick, all you need to do is search up word "Import" in searchbar from up-left corner menu.
-In the open window click `Import` button, then click `+ Select data files`, from this window you must find and choose your downloaded config file, and then select `Upload data`, that's it.
+The process of import is simple and quick:
+1. Search up word "Import" in searchbar from up-left corner menu
+2. In the open window click `Import` button
+3. Then click `+ Select data files`
+4. From open window find and choose your downloaded config file, and then select `Upload data`, that's it.
 
 Now then you imported a config, test elements will apear in your instacnce, and you can see them on "Objects" or "Devices" sections for example.
 
