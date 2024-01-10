@@ -44,7 +44,7 @@ If you feel like that, you can choose to use your own data bases like PostgreSQL
 
 
 ## Log in to Inspark
-You can access Inspark now via your web browser by visiting http://localhost:HTT_PORT. (HTTP_PORT 8001 by default) Note that many browsers now default to https - if yours is one of them, please make sure it uses http.
+You can access Inspark now via your web browser by visiting http://localhost:HTTP_PORT. (HTTP_PORT 8001 by default) Note that many browsers now default to https - if yours is one of them, please make sure it uses http.
 
 Log in with the default username and password:
 
