@@ -54,7 +54,22 @@ password: masterkey
 
 ---
 
+## Configuration file import
+First of all lets go to the **"All widgets"** tab, and find the **"Комплексный виджет"**, and then press **"Get widget"**. This widget is required for the dashboard so that it works correctly, thats important!
+
+Now is the time to import our **configuration file** wich contains pre-config **Objects**, **Categories** and **Devices**, for this specific test case. However in a future production cases you can also make configuration for you instance, in sake of backup for example.
+
+The process of import is simple and quick:
+1. Search up word "Import" in searchbar from up-left corner menu
+2. In the open window click `Import` button
+3. Then click `+ Select data files`
+4. From open window find and choose your downloaded config file (*./Inspark-docker/configuration.zip*), and then select `Upload data`, that's it.
+
+Now then you imported a config, test elements will apear in your instacnce, and you can see them on "Objects" or "Devices" sections for example.
+
 ## Emulation of controller performance
+Before we start to launch our emulator, there is one option we need to change. Lets navigate to the **"Object"** tab → Expand **"Rubric"** → **"Controllers"** (in the opened menu on the right side) → Select the only controller shown there, adn in the field "COLLECTOR" change **"collector"** to **"emqx"**, after that click on the save button, on the top of the menu (Disket Ico).
+
 A controller emulator is needed if you want to test and visually see the capability of the controller, without equipment itself.
 In the **Inspark-docker** directory there is the emulator script, called **controller-emulator.sh**
 
@@ -69,17 +84,6 @@ bash ./controller-emulator.sh ATAT2020 <Host ip>
 - `<Host ip>` - ip address of the host where the **Inspark Platform instance(IPI)** is located, to which we will add the controller.
 
 At this point **controller emulator** is fully setup and ready to be use in **IPI**!
-
-## Configuration file import
-Now is the time to import our **configuration file** wich contains pre-config **Objects**, **Categories** and **Devices**, for this specific test case. However in a future production cases you can also make configuration for you instance, in sake of backup for example.
-
-The process of import is simple and quick:
-1. Search up word "Import" in searchbar from up-left corner menu
-2. In the open window click `Import` button
-3. Then click `+ Select data files`
-4. From open window find and choose your downloaded config file (*./Inspark-docker/configuration.zip*), and then select `Upload data`, that's it.
-
-Now then you imported a config, test elements will apear in your instacnce, and you can see them on "Objects" or "Devices" sections for example.
 
 
 
