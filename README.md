@@ -68,7 +68,7 @@ The process of import is simple and quick:
 Now then you imported a config, test elements will apear in your instacnce, and you can see them on "Objects" or "Devices" sections for example.
 
 ## Emulation of controller performance
-Before we start to launch our emulator, there is one option we need to change. Lets navigate to the **"Object"** tab → Expand **"Rubric"** → **"Controllers"** (in the opened menu on the right side) → Select the only controller shown there, adn in the field "COLLECTOR" change **"collector"** to **"emqx"**, after that click on the save button, on the top of the menu (Disket Ico).
+Before we start to launch our emulator, there is one option we need to change. Lets navigate to the **"Object"** tab → Expand **"Rubric"** → **"Controllers"** (in the opened menu on the right side) → Select the only controller shown there, adn in the field **"COLLECTOR"** change **"collector"** to **"emqx"**, after that click on the save button, on the top of the menu (Disket Ico).
 
 A controller emulator is needed if you want to test and visually see the capability of the controller, without equipment itself.
 In the **Inspark-docker** directory there is the emulator script, called **controller-emulator.sh**
