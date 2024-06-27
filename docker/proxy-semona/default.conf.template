@@ -1,0 +1,139 @@
+# ограничение методов авторизации по логину пароли и sso на ip-адрес клиента
+limit_req_zone $binary_remote_addr zone=perip_login:10m rate=1r/s;
+
+# ограничение вызова методов восстановления пароля и проверки токена авторизации
+limit_req_zone $binary_remote_addr zone=perip_pass_recover:10m rate=1r/m;
+
+# ограничение методов авторизации, действующее на весь сервер
+limit_req_zone $server_name zone=perserver_auth:10m rate=10r/s;
+
+# поддержка web socket соединений
+map $http_upgrade $connection_upgrade {
+  default upgrade;
+  "" close;
+}
+# для jasperserver разрешить подчеркивания в заголовках запросов
+underscores_in_headers on;
+
+# ограничение на объем тела типичного запроса клиента
+client_max_body_size 1m;
+
+upstream webservices {
+  server webservices:8080;
+}
+
+server {
+  listen 80;
+  gzip on;
+  gzip_min_length 256;
+  gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
+  gzip_proxied any;
+
+  error_page  502 503 @503;
+
+  location @503 {
+    root /var/www/semux-error-pages;
+    try_files /503.html =503;
+    internal;
+  }
+ # ===== BEGIN REDIRECT BLOCK ===== 
+  location = / {
+    rewrite ^ http://$host:${HTTP_PORT}/semux/ last;
+  }
+ # ===== END REDIRECT BLOCK =====
+  location @semona {
+    proxy_pass http://webservices;
+    proxy_set_header Host $host;
+    proxy_set_header   X-Real-IP        $remote_addr;
+    proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+    proxy_read_timeout 15m;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+    include /etc/nginx/semona-cors.conf;
+  }
+
+  location @semux {
+    proxy_pass http://semux:8080;
+    proxy_set_header Host $host;
+    proxy_set_header   X-Real-IP        $remote_addr;
+    proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+    proxy_read_timeout 15m;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+    include /etc/nginx/semona-cors.conf;
+  }
+  
+  location /sem-restservices/db/expimp {
+    client_max_body_size 32m;
+    try_files $uri @semona;
+  }
+
+  location /sem-restservices {
+    try_files $uri @semona;
+  }
+
+  location / {
+    try_files $uri @semux;
+  }
+
+  location /files {
+    proxy_pass http://webservices;
+    proxy_set_header Host $host;
+    proxy_set_header   X-Real-IP        $remote_addr;
+    proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+    proxy_read_timeout 15m;
+    client_max_body_size 5m;
+  }
+
+  location /sem-restservices/auth/login {
+    limit_req zone=perip_login burst=20 nodelay;
+    limit_req zone=perserver_auth burst=20 nodelay;
+    proxy_pass http://webservices;
+    proxy_set_header Host $host;
+    proxy_set_header   X-Real-IP        $remote_addr;
+    proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+    include /etc/nginx/semona-cors.conf;
+  }
+
+  location /sem-restservices/auth/sso {
+    limit_req zone=perip_login burst=20 nodelay;
+    limit_req zone=perserver_auth burst=20 nodelay;
+    proxy_pass http://webservices;
+    proxy_set_header Host $host;
+    proxy_set_header   X-Real-IP        $remote_addr;
+    proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+    include /etc/nginx/semona-cors.conf;
+  }
+
+  location /sem-restservices/auth/recovery_password {
+    limit_req zone=perip_pass_recover burst=5;
+    limit_req zone=perserver_auth burst=5;
+    proxy_pass http://webservices;
+    proxy_set_header Host $host;
+    proxy_set_header   X-Real-IP        $remote_addr;
+    proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+    include /etc/nginx/semona-cors.conf;
+ }
+
+  location /sem-restservices/auth/reset_password {
+    limit_req zone=perip_pass_recover burst=5;
+    limit_req zone=perserver_auth burst=5;
+    proxy_pass http://webservices;
+    proxy_set_header Host $host;
+    proxy_set_header   X-Real-IP        $remote_addr;
+    proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+    include /etc/nginx/semona-cors.conf;
+  }
+
+  location /sem-restservices/auth/check_code {
+    limit_req zone=perip_pass_recover burst=5;
+    limit_req zone=perserver_auth burst=5;
+    proxy_pass http://webservices;
+    proxy_set_header Host $host;
+    proxy_set_header   X-Real-IP        $remote_addr;
+    proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+    include /etc/nginx/semona-cors.conf;
+  }
+}

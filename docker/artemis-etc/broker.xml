@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
+    <core xmlns="urn:activemq:core">
+
+        <name>artemis</name>
+
+        <bindings-directory>data/messaging/bindings</bindings-directory>
+
+        <journal-directory>data/messaging/journal</journal-directory>
+
+        <large-messages-directory>data/messaging/largemessages</large-messages-directory>
+
+        <paging-directory>data/messaging/paging</paging-directory>
+
+        <!-- Connectors -->
+        <connectors>
+            <connector name="netty-connector">tcp://artemis:61616</connector>
+        </connectors>
+
+        <!-- Acceptors -->
+        <acceptors>
+            <!-- Acceptor for every supported protocol -->
+            <acceptor name="netty-acceptor">tcp://0.0.0.0:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;amqpMinLargeMessageSize=102400;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;amqpDuplicateDetection=true;supportAdvisory=false;suppressInternalManagementObjects=false</acceptor>
+
+            <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
+            <acceptor name="amqp">tcp://0.0.0.0:5672?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;amqpMinLargeMessageSize=102400;amqpDuplicateDetection=true</acceptor>
+
+            <!-- STOMP Acceptor. -->
+            <acceptor name="stomp">tcp://0.0.0.0:61613?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=STOMP;useEpoll=true</acceptor>
+
+            <!-- HornetQ Compatibility Acceptor.  Enables HornetQ Core and STOMP for legacy HornetQ clients. -->
+            <acceptor name="hornetq">tcp://0.0.0.0:5445?anycastPrefix=jms.queue.;multicastPrefix=jms.topic.;protocols=HORNETQ,STOMP;useEpoll=true</acceptor>
+
+        </acceptors>
+
+        <!-- Federation -->
+
+        <!--No federation configuration necessary as the other brokers will be creating downstreams/upstreams
+        to this broker-->
+
+        <!-- Other config -->
+
+        <security-settings>
+            <security-setting match="#">
+                <permission type="createNonDurableQueue" roles="amq"/>
+                <permission type="deleteNonDurableQueue" roles="amq"/>
+                <permission type="createDurableQueue" roles="amq"/>
+                <permission type="deleteDurableQueue" roles="amq"/>
+                <permission type="createAddress" roles="amq"/>
+                <permission type="deleteAddress" roles="amq"/>
+                <permission type="consume" roles="amq"/>
+                <permission type="browse" roles="amq"/>
+                <permission type="send" roles="amq"/>
+                <!-- we need this otherwise ./artemis data imp wouldn't work -->
+                <permission type="manage" roles="amq"/>
+            </security-setting>
+        </security-settings>
+
+        <address-settings>
+            <!-- if you define auto-create on certain queues, management has to be auto-create -->
+            <address-setting match="activemq.management#">
+                <dead-letter-address>DLQ</dead-letter-address>
+                <expiry-address>ExpiryQueue</expiry-address>
+                <max-delivery-attempts>1</max-delivery-attempts>
+                <!-- with -1 only the global-max-size is in use for limiting -->
+                <max-size-bytes>524288</max-size-bytes>
+                <page-size-bytes>524288</page-size-bytes>
+                <address-full-policy>DROP</address-full-policy>
+            </address-setting>
+            <!--default for catch all-->
+            <address-setting match="#">
+                <dead-letter-address>DLQ</dead-letter-address>
+                <expiry-address>ExpiryQueue</expiry-address>
+                <redelivery-delay>5000</redelivery-delay>
+                <max-delivery-attempts>2</max-delivery-attempts>
+                <max-size-bytes>10485760</max-size-bytes>
+                <page-size-bytes>10485760</page-size-bytes>
+                <address-full-policy>BLOCK</address-full-policy>
+                <default-group-rebalance>true</default-group-rebalance>
+                <default-group-rebalance-pause-dispatch>true</default-group-rebalance-pause-dispatch>
+            </address-setting>
+            <address-setting match="jms.queue.Notify">
+                <!-- через час сообщения устаревают и переносятся в очередь ExpiredNotifications -->
+                <expiry-address>jms.queue.ExpiredNotifications</expiry-address>
+                <expiry-delay>3600000</expiry-delay>
+                <!-- повторная отправка через: 20 sec, 30 sec, 45 sec, ..., 300 sec -->
+                <redelivery-delay>20000</redelivery-delay>
+                <redelivery-delay-multiplier>1.5</redelivery-delay-multiplier>
+                <max-redelivery-delay>300000</max-redelivery-delay>
+                <!-- 50 неудачных отправок достаточно будет -->
+                <max-delivery-attempts>50</max-delivery-attempts>
+            </address-setting>
+        </address-settings>
+
+        <addresses>
+            <address name="DLQ">
+                <anycast>
+                    <queue name="DLQ"/>
+                </anycast>
+            </address>
+            <address name="ExpiryQueue">
+                <anycast>
+                    <queue name="ExpiryQueue"/>
+                </anycast>
+            </address>
+            <address name="jms.queue.Aggregation">
+                <anycast>
+                    <queue name="jms.queue.Aggregation"/>
+                </anycast>
+            </address>
+            <address name="jms.queue.Event">
+                <anycast>
+                    <queue name="jms.queue.Event"/>
+                </anycast>
+            </address>
+            <address name="jms.queue.Measure">
+                <anycast>
+                    <queue name="jms.queue.Measure"/>
+                </anycast>
+            </address>
+            <address name="jms.queue.Command">
+                <anycast>
+                    <queue name="jms.queue.Command"/>
+                </anycast>
+            </address>
+            <address name="jms.queue.CalcParam">
+                <anycast>
+                    <queue name="jms.queue.CalcParam"/>
+                </anycast>
+            </address>
+            <address name="jms.queue.Collector">
+                <anycast>
+                    <queue name="jms.queue.Collector"/>
+                </anycast>
+            </address>
+            <address name="jms.queue.RuleExec">
+                <anycast>
+                    <queue name="jms.queue.RuleExec"/>
+                </anycast>
+            </address>
+            <address name="jms.queue.SetValue">
+                <anycast>
+                    <queue name="jms.queue.SetValue"/>
+                </anycast>
+            </address>
+            <address name="jms.queue.Notify">
+                <anycast>
+                    <queue name="jms.queue.Notify"/>
+                </anycast>
+            </address>
+            <address name="jms.queue.EventImport">
+                <anycast>
+                    <queue name="jms.queue.EventImport"/>
+                </anycast>
+            </address>
+            <address name="jms.queue.EventExport">
+                <multicast>
+                    <queue name="jms.queue.EventExport"/>
+                </multicast>
+            </address>
+            <address name="jms.queue.ExpiredNotifications">
+                <anycast>
+                    <queue name="jms.queue.ExpiredNotifications"/>
+                </anycast>
+            </address>
+            <address name="jms.queue.NbiotCommand">
+                <anycast>
+                    <queue name="jms.queue.NbiotCommand"/>
+                </anycast>
+            </address>
+            <address name="jms.queue.GlobalRuleExec">
+                <anycast>
+                    <queue name="jms.queue.GlobalRuleExec"/>
+                </anycast>
+            </address>
+            <address name="jms.queue.RuleAction">
+                <anycast>
+                    <queue name="jms.queue.RuleAction"/>
+                </anycast>
+            </address>
+            <address name="jms.queue.ActionCondition">
+                <anycast>
+                    <queue name="jms.queue.ActionCondition"/>
+                </anycast>
+            </address>
+            <address name="jms.queue.ParamChange">
+                <multicast>
+                    <queue name="jms.queue.ParamChange"/>
+                </multicast>
+            </address>
+            <address name="jms.queue.WidgetEvent">
+                <multicast>
+                    <queue name="jms.queue.WidgetEvent"/>
+                </multicast>
+            </address>
+            <address name="jms.queue.HierarchyExport">
+                <anycast>
+                    <queue name="jms.queue.HierarchyExport"/>
+                </anycast>
+            </address>
+            <address name="jms.queue.HierarchyMeasure">
+                <multicast>
+                    <queue name="jms.queue.HierarchyMeasure"/>
+                </multicast>
+            </address>
+            <address name="jms.queue.HierarchyMetaData">
+                <multicast>
+                    <queue name="jms.queue.HierarchyMetaData"/>
+                </multicast>
+            </address>
+            <address name="jms.queue.HierarchyEvent">
+                <multicast>
+                    <queue name="jms.queue.HierarchyEvent"/>
+                </multicast>
+            </address>
+            <address name="jms.queue.HierarchyCommand">
+                <multicast>
+                    <queue name="jms.queue.HierarchyCommand"/>
+                </multicast>
+            </address>
+        </addresses>
+    </core>
+</configuration>
