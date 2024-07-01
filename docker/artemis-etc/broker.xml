@@ -166,11 +166,6 @@ under the License.
                     <queue name="jms.queue.Notify"/>
                 </anycast>
             </address>
-            <address name="jms.queue.EventImport">
-                <anycast>
-                    <queue name="jms.queue.EventImport"/>
-                </anycast>
-            </address>
             <address name="jms.queue.EventExport">
                 <multicast>
                     <queue name="jms.queue.EventExport"/>
@@ -210,11 +205,6 @@ under the License.
                 <multicast>
                     <queue name="jms.queue.WidgetEvent"/>
                 </multicast>
-            </address>
-            <address name="jms.queue.HierarchyExport">
-                <anycast>
-                    <queue name="jms.queue.HierarchyExport"/>
-                </anycast>
             </address>
             <address name="jms.queue.HierarchyMeasure">
                 <multicast>
