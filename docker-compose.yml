@@ -36,6 +36,7 @@ services:
     volumes:
       - db_home:/var/lib/postgresql/data
       - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d  
+      
   artemis:
     image: insparkplatform/apache-artemis
     restart: unless-stopped
@@ -60,6 +61,8 @@ services:
     depends_on: 
       semona-init:
         condition: service_completed_successfully
+    volumes:
+      - ./docker/inspark-license.lic:/opt/sem-engine/inspark-license.lic
   
   semona-periodic:
     image: insparkplatform/semona-periodic
@@ -70,12 +73,10 @@ services:
     depends_on: 
       semona-init:
         condition: service_completed_successfully
-    volumes:
-    - ./docker/inspark-license.lic:/opt/jboss/wildfly/standalone/configuration/inspark-license.lic
 
-  semona-webservices:
+  semona-restservices:
     image: insparkplatform/semona-webservices
-    container_name: webservices
+    container_name: restservices
     env_file: ./docker/.env
     ports:
       - 9812:8080
@@ -84,24 +85,19 @@ services:
         condition: service_completed_successfully
     volumes:
     - inspark-files:/files
-    - ./docker/inspark-license.lic:/opt/jboss/wildfly/standalone/configuration/inspark-license.lic
+    - ./docker/inspark-license.lic:/opt/sem-restservices/inspark-license.lic
 
   semux:
     restart: always
     image: insparkplatform/semux
-    container_name: semux 
-
-  proxy:
-    restart: always
-    image: insparkplatform/semona-proxy
-    container_name: proxy
+    container_name: semux
     env_file: ./docker/.env
     environment:
       HTTP_PORT: $HTTP_PORT
     ports:
       - ${HTTP_PORT}:80
     volumes:
-      - ./docker/proxy-semona/default.conf.template:/etc/nginx/templates/default.conf.template
+      - ./docker/proxy-semona/default.conf.template:/etc/nginx/conf.d/default.conf
       - ./docker/proxy-semona/semona-cors.conf:/etc/nginx/semona-cors.conf
   
   handler:
