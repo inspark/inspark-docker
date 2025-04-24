@@ -1,0 +1,162 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgis/postgis:14-3.3
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+  emqx:
+    image: emqx:4.3
+    container_name: emqx
+    ports:
+      - "1883:1883"  # MQTT
+      - "8083:8083"  # MQTT/WebSocket
+      - "8081:8081"  # Management API
+      - "8883:8883"  # MQTT/SSL
+      - "18083:18083"  # Dashboard
+    environment:
+      EMQX_MQTT__MAX_PACKET_SIZE: "2MB"
+      EMQX_ALLOW__ANONYMOUS: "true"
+      EMQX_LOADED_PLUGINS: "emqx_dashboard,emqx_management,emqx_recon,emqx_retainer,emqx_rule_engine"
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  activemq:
+    image: apache/activemq-artemis:2.32.0
+    container_name: activemq_artemis
+    ports:
+      - "8161:8161"  # Web console
+      - "61616:61616"  # Core protocol
+      - "5672:5672"   # AMQP
+      - "1884:1883"   # MQTT (изменен на 1884 чтобы избежать конфликта с EMQX)
+      - "61613:61613" # STOMP
+    environment:
+      ARTEMIS_USER: admin
+      ARTEMIS_PASSWORD: admin
+      ANONYMOUS_LOGIN: "true"
+    volumes:
+      - activemq_data:/var/lib/artemis/data
+      - ./artemis-etc-override:/var/lib/artemis-instance/etc-override:ro
+    restart: unless-stopped
+  
+  semona-migrator:
+    image: insparkplatform/semona-migrator:latest
+    container_name: migrator
+    depends_on:
+      - postgres
+      - emqx
+      - redis
+      - activemq
+    environment:
+      PG_HOST: "postgres"
+
+  semona-engine:
+    image: insparkplatform/semona-engine:latest
+    container_name: engine
+    ports:
+      - 8746:8746
+    depends_on: 
+      semona-migrator:
+        condition: service_completed_successfully
+    environment:
+      PG_HOST: "postgres"
+      REDIS_URL: "redis://redis:6379"
+      JMS_HOST: "172.17.0.1"
+    volumes:
+      - ./inspark-license.lic:/opt/sem-engine/inspark-license.lic
+  semona-handler:
+    image: insparkplatform/semona-handler:latest
+    container_name: handler
+    ports:
+      - 8755:8755
+    depends_on: 
+      semona-migrator:
+        condition: service_completed_successfully
+    environment:
+      MQTT_HOST: emqx
+      JMS_HOST: "172.17.0.1"
+
+  semona-notifier:
+    image: insparkplatform/semona-notifier:latest
+    container_name: notifier
+    ports:
+      - 8549:8549
+    depends_on: 
+      semona-migrator:
+        condition: service_completed_successfully
+    environment:
+      PG_HOST: "postgres"
+      JMS_HOST: "172.17.0.1"
+
+  semona-periodic:
+    image: insparkplatform/semona-periodic:latest
+    container_name: periodic
+    ports:
+      - 8752:8752
+    depends_on: 
+      semona-migrator:
+        condition: service_completed_successfully
+    environment:
+      PG_HOST: "postgres"
+      REDIS_URL: "redis://redis:6379"
+      JMS_HOST: "172.17.0.1"
+
+  semona-publisher:
+    image: insparkplatform/semona-publisher:latest
+    container_name: publisher
+    ports:
+      - 8034:8034
+    depends_on: 
+      semona-migrator:
+        condition: service_completed_successfully
+    environment:
+      PG_HOST: "postgres"
+      JMS_HOST: "172.17.0.1"
+
+  semona-restservices:
+    image: insparkplatform/semona-restservices:latest
+    container_name: restservices
+    ports:
+      - 8080:8080
+    depends_on: 
+      semona-migrator:
+        condition: service_completed_successfully
+    environment:
+      PG_HOST: "postgres"
+      REDIS_URL: "redis://redis:6379"
+      JMS_HOST: "172.17.0.1"
+    volumes:
+      - ./inspark-license.lic:/opt/sem-restservices/inspark-license.lic
+      - ./metadata:/files
+
+  semux:
+    image: insparkplatform/semux:latest
+    container_name: semux
+    ports:
+      - 6969:80
+    depends_on: 
+      - semona-restservices
+
+
+volumes:
+  postgres_data:
+  redis_data:
+  activemq_data:
