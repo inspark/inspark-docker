@@ -26,31 +26,16 @@ copy the license to the folder ./docker/inspark-license.lic
 When working on master branch, run the following commands to run development mode using docker compose:
 
 ```
-docker compose up
+docker compose up -d
 ```
 
-
-TIP
-The platform will launch with options wich specified within files like .env and ./docker/.env.
-If you need to change port options which need to get access via http, you can change port number in file .env, HTTP_PORT variable.
-
-
-## Configuring docker compose
-
-You can configure the Docker Compose environment variables for docker/.env  respectively. These environment files sets the environment for most containers in the Docker Compose setup, and some variables affect multiple containers and others only single ones.
-
-NOTE
-If you feel like that, you can choose to use your own data bases like PostgreSQL, Redis, etc. For that you need meet system requirements which you can see at docs.inspark.ru/ru/system/install/standalone
-
-
 ## Log in to Inspark
-You can access Inspark now via your web browser by visiting http://localhost:HTT_PORT. Note that many browsers now default to https - if yours is one of them, please make sure it uses http.
+You can access Inspark now via your web browser by visiting http://localhost:6969. Note that many browsers now default to https - if yours is one of them, please make sure it uses http.
 
 Log in with the default username and password:
 
-username: root
-
-password: masterkey
+username: `root`
+password: `masterkey`
 
 ---
 
