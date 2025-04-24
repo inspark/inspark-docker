@@ -148,7 +148,7 @@ services:
       - ./metadata:/files
 
   semux:
-    image: insparkplatform/nginx-semux:latest
+    image: insparkplatform/semux:latest
     container_name: semux
     ports:
       - 6969:80
